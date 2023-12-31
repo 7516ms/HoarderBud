@@ -1,0 +1,11 @@
+{
+    "name": "HoarderBud",
+    "version_number": "1.0.6",
+	"website_url":"https://azim0ff.itch.io/hoarderbud",
+    "description": "A mod which makes hoarder bugs friendly and helpful, made for modjam",
+    "dependencies": [
+		"BepInEx-BepInExPack-5.4.2100",
+		"sunnobunno-YippeeMod-1.2.2",
+		"Evaisa-HookGenPatcher-0.0.5"
+	]
+}
