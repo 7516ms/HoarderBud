@@ -3,22 +3,25 @@ using BepInEx.Logging;
 using HoarderBud.Patches;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Unity.Collections;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace HoarderBud
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class HoarderBudPlugin : BaseUnityPlugin
     {
-        //private readonly Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
         public static ManualLogSource mls;
 
         internal static CustomMessagingManager MessageManager => NetworkManager.Singleton.CustomMessagingManager;
         internal static bool IsClient => NetworkManager.Singleton.IsClient;
         internal static bool IsHost => NetworkManager.Singleton.IsHost;
         internal static bool IsSynced = false;
+
+        internal static GameObject LootBugModel = null;
 
         private void Awake()
         {
@@ -36,10 +39,12 @@ namespace HoarderBud
             OpenAllDoorsPatches.Load();
             SpawnOnlyGiftsPatches.Load();
 
+            HoarderBudSpawnerPatches.Load();
+
             ApplyLocalSettings();
 
-
             mls.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+
         }
 
         private void LoadConfigOnDisconnect(On.GameNetworkManager.orig_StartDisconnect orig, GameNetworkManager self)
@@ -55,14 +60,14 @@ namespace HoarderBud
 
             if (IsHost)
             {
-                MessageManager.RegisterNamedMessageHandler("ModName_OnRequestConfigSync", OnRequestSync);
+                MessageManager.RegisterNamedMessageHandler(PluginInfo.PLUGIN_GUID + "_OnRequestConfigSync", OnRequestSync);
                 IsSynced = true;
 
                 return;
             }
 
             IsSynced = false;
-            MessageManager.RegisterNamedMessageHandler("ModName_OnReceiveConfigSync", OnReceiveSync);
+            MessageManager.RegisterNamedMessageHandler(PluginInfo.PLUGIN_GUID + "_OnReceiveConfigSync", OnReceiveSync);
             RequestSync();
         }
         public static void RequestSync()
@@ -70,7 +75,7 @@ namespace HoarderBud
             if (!IsClient) return;
 
             using FastBufferWriter stream = new(sizeof(int), Allocator.Temp);
-            MessageManager.SendNamedMessage("ModName_OnRequestConfigSync", 0uL, stream);
+            MessageManager.SendNamedMessage(PluginInfo.PLUGIN_GUID + "_OnRequestConfigSync", 0uL, stream);
         }
 
         public static void OnRequestSync(ulong clientId, FastBufferReader _)
@@ -89,7 +94,7 @@ namespace HoarderBud
                 stream.WriteValueSafe(in value, default);
                 stream.WriteBytesSafe(array);
 
-                MessageManager.SendNamedMessage("ModName_OnReceiveConfigSync", clientId, stream);
+                MessageManager.SendNamedMessage(PluginInfo.PLUGIN_GUID + "_OnReceiveConfigSync", clientId, stream);
             }
             catch (Exception e)
             {
@@ -129,6 +134,7 @@ namespace HoarderBud
             public bool DisableInsideEnemies = true;
             public bool OpenAllDoors = true;
             public bool SpawnOnlyGifts = true;
+            public bool AddSpawnerItem = true;
         }
 
         private static byte[] SerializeToBytes()
@@ -141,7 +147,8 @@ namespace HoarderBud
                 DisableOutsideEnemies = RemoveOutsideMobsPatches.enabled,
                 DisableInsideEnemies = RemoveInsideMobsPatches.enabled,
                 OpenAllDoors = OpenAllDoorsPatches.enabled,
-                SpawnOnlyGifts = SpawnOnlyGiftsPatches.enabled
+                SpawnOnlyGifts = SpawnOnlyGiftsPatches.enabled,
+                AddSpawnerItem = HoarderBudSpawnerPatches.enabled
             };
 
             BinaryFormatter bf = new();
@@ -166,6 +173,8 @@ namespace HoarderBud
             RemoveInsideMobsPatches.enabled = cfg.DisableInsideEnemies;
             OpenAllDoorsPatches.enabled = cfg.OpenAllDoors;
             SpawnOnlyGiftsPatches.enabled = cfg.SpawnOnlyGifts;
+            HoarderBudSpawnerPatches.enabled = cfg.AddSpawnerItem;
+            HoarderBudSpawnerPatches.UpdateItem();
 
             IsSynced = true;
             mls.LogInfo("Config: Loaded remote config");
@@ -176,6 +185,7 @@ namespace HoarderBud
             mls.LogInfo("Config: DisableInsideEnemies - " + RemoveInsideMobsPatches.enabled);
             mls.LogInfo("Config: OpenAllDoors - " + OpenAllDoorsPatches.enabled);
             mls.LogInfo("Config: SpawnOnlyGifts - " + SpawnOnlyGiftsPatches.enabled);
+            mls.LogInfo("Config: AddSpawnerItem - " + HoarderBudSpawnerPatches.enabled);
         }
 
         private void ApplyLocalSettings()
@@ -185,8 +195,10 @@ namespace HoarderBud
             BoomboxPatches.danceSpeed = Config.Bind<float>("Boombox", "DanceSpeed", 4f, "Dance speed").Value;
             RemoveOutsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableOutsideEnemies", false, "Disables all outside enemies").Value;
             RemoveInsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableInsideEnemies", true, "Disables all inside enemies except for Hoarder Buddy").Value;
-            OpenAllDoorsPatches.enabled = Config.Bind<bool>("General", "OpenAllDoors", true, "Start game with all the inside doors open").Value;
-            SpawnOnlyGiftsPatches.enabled = Config.Bind<bool>("General", "SpawnOnlyGifts", true, "All scrap spawned inside is ").Value;
+            OpenAllDoorsPatches.enabled = Config.Bind<bool>("General", "OpenAllDoors", true, "Starts game with all the inside doors open").Value;
+            SpawnOnlyGiftsPatches.enabled = Config.Bind<bool>("General", "SpawnOnlyGifts", true, "All scrap spawned inside is gift boxes").Value;
+            HoarderBudSpawnerPatches.enabled = Config.Bind<bool>("General", "AddSpawnerItem", true, "Adds a throwable HoarderBug item").Value;
+            HoarderBudSpawnerPatches.UpdateItem();
 
             mls.LogInfo("Config: Loaded local config");
             mls.LogInfo("Config: ShouldBugsDance - " + BoomboxPatches.enabled);
@@ -196,6 +208,7 @@ namespace HoarderBud
             mls.LogInfo("Config: DisableInsideEnemies - " + RemoveInsideMobsPatches.enabled);
             mls.LogInfo("Config: OpenAllDoors - " + OpenAllDoorsPatches.enabled);
             mls.LogInfo("Config: SpawnOnlyGifts - " + SpawnOnlyGiftsPatches.enabled);
+            mls.LogInfo("Config: AddSpawnerItem - " + HoarderBudSpawnerPatches.enabled);
         }
 
 

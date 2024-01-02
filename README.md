@@ -11,3 +11,4 @@ A mod which makes hoarder bugs friendly and helpful, made for modjam
 * `DisableInsideEnemies = true` - should mod disable enemies roaming inside of the dungeon (except for Hoarder Buddy)?
 * `OpenAllDoors = true` - should mod start game with all the inside doors open?
 * `SpawnOnlyGifts = true` - should mod replace all scrap with gifts?
+* `AddSpawnerItem = true` - should mod add a throwable hoarder bug egg?

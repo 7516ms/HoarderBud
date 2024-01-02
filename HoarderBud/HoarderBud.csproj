@@ -4,10 +4,18 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>HoarderBud</AssemblyName>
     <Description>HoarderBud plugin</Description>
-    <Version>1.0.4</Version>
+    <Version>1.0.7</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resources\hoarderspawnerbundle" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="resources\hoarderspawnerbundle" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
@@ -26,6 +34,9 @@
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="LethalLib">
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_AmazingAssets.TerrainToMesh">
       <HintPath>..\MMHOOK\MMHOOK_AmazingAssets.TerrainToMesh.dll</HintPath>
@@ -70,5 +81,9 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
       <Exec Command="copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\$(ProjectName).dll&quot;&#xD;&#xA;copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)\publish\$(ProjectName).dll&quot;&#xD;&#xA;copy /Y &quot;$(SolutionDir)\README.md&quot; &quot;$(SolutionDir)\publish\README.md&quot;" />
+    </Target>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="copy /Y &quot;E:\coding\studio\Lethal Company Mods\ExampleScrapPluginUnity\AssetBundles\StandaloneWindows\hoarderspawnerbundle&quot; &quot;$(SolutionDir)\$(ProjectName)\resources\hoarderspawnerbundle&quot;" />
     </Target>
 </Project>
