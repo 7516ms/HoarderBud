@@ -22,6 +22,7 @@ namespace HoarderBud
         internal static bool IsSynced = false;
 
         internal static GameObject LootBugModel = null;
+        public static bool HasLethalEscape = false;
 
         private void Awake()
         {
@@ -57,6 +58,8 @@ namespace HoarderBud
         private void AttachNetworkManager(On.GameNetcodeStuff.PlayerControllerB.orig_ConnectClientToPlayerObject orig, GameNetcodeStuff.PlayerControllerB self)
         {
             orig(self);
+
+            HasLethalEscape = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("xCeezy.LethalEscape");
 
             if (IsHost)
             {

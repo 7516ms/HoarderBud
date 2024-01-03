@@ -25,7 +25,7 @@ namespace HoarderBud.Components
 
             if (base.IsOwner || NetworkManager.Singleton.IsHost)
             {
-                if (playerHeldBy.isInsideFactory)
+                if (playerHeldBy.isInsideFactory || HoarderBudPlugin.HasLethalEscape)
                 {
                     wasThrown = true;
                 }

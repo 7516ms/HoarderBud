@@ -29,8 +29,13 @@ namespace HoarderBud.Patches
             }
 
             self.angryAtPlayer = null;
-            self.nestPosition = nests.GetValueOrDefault(self.GetInstanceID(), properNest + new Vector3(UnityEngine.Random.Range(-2f, 2f), 0, UnityEngine.Random.Range(-2f, 2f)));
-            nests[self.GetInstanceID()] = self.nestPosition;
+
+            if (!self.isOutside)
+            {
+                self.nestPosition = nests.GetValueOrDefault(self.GetInstanceID(), properNest + new Vector3(UnityEngine.Random.Range(-2f, 2f), 0, UnityEngine.Random.Range(-2f, 2f)));
+                nests[self.GetInstanceID()] = self.nestPosition;
+            }
+
             return false;
         }
 
@@ -39,7 +44,10 @@ namespace HoarderBud.Patches
             if (enabled)
             {
                 HoarderBudPlugin.mls.LogDebug("pre synced nest " + properNest);
-                self.nestPosition = properNest;
+                if (!self.isOutside)
+                {
+                    self.nestPosition = properNest;
+                }
             }
             orig(self, newNestPosition);
         }
