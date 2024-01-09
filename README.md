@@ -1,5 +1,9 @@
 # HoarderBud
-A mod which makes hoarder bugs friendly and helpful, made for modjam
+A mod which makes hoarder bugs friendly and helpful.
+Fixed to work at v49
+
+
+When used with LethalEscape, hoarder bug egg can be hatched both inside and outside of the factory
 
 # Configuration
 

@@ -1,6 +1,6 @@
 {
     "name": "HoarderBud",
-    "version_number": "1.0.8",
+    "version_number": "1.0.9",
 	"website_url":"https://azim0ff.itch.io/hoarderbud",
     "description": "A mod which makes hoarder bugs friendly and helpful, made for modjam",
     "dependencies": [

@@ -21,15 +21,9 @@ namespace HoarderBud.Patches
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
-                x => x.MatchLdarg(0),
-                x => x.MatchLdfld<RoundManager>("currentLevel"),
-                x => x.MatchLdfld<SelectableLevel>("spawnableScrap"),
-                x => x.MatchLdarg(0),
-                x => x.MatchLdloc(4),
-                x => x.MatchLdnull(),
                 x => x.MatchCall<RoundManager>("GetRandomWeightedIndex")
                 );
-            c.Index += 6;
+            //c.Index += 6;
 
             c.Next.Operand = typeof(SpawnOnlyGiftsPatches).GetMethod("FakeWeightedRandom", BindingFlags.NonPublic | BindingFlags.Static);
         }

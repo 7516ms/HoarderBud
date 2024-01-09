@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>HoarderBud</AssemblyName>
     <Description>HoarderBud plugin</Description>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -39,22 +39,22 @@
       <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_AmazingAssets.TerrainToMesh">
-      <HintPath>..\MMHOOK\MMHOOK_AmazingAssets.TerrainToMesh.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_AmazingAssets.TerrainToMesh.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Assembly-CSharp">
-      <HintPath>..\MMHOOK\MMHOOK_Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_ClientNetworkTransform">
-      <HintPath>..\MMHOOK\MMHOOK_ClientNetworkTransform.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_ClientNetworkTransform.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_DissonanceVoip">
-      <HintPath>..\MMHOOK\MMHOOK_DissonanceVoip.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_DissonanceVoip.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Facepunch Transport for Netcode for GameObjects">
-      <HintPath>..\MMHOOK\MMHOOK_Facepunch Transport for Netcode for GameObjects.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_Facepunch Transport for Netcode for GameObjects.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Facepunch.Steamworks.Win64">
-      <HintPath>..\MMHOOK\MMHOOK_Facepunch.Steamworks.Win64.dll</HintPath>
+      <HintPath>C:\Users\figaR\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\MyTest\BepInEx\plugins\MMHOOK\MMHOOK_Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Collections">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Collections.dll</HintPath>
