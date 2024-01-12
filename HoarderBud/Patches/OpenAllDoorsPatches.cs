@@ -6,7 +6,7 @@ namespace HoarderBud.Patches
     internal class OpenAllDoorsPatches
     {
         public static bool enabled = true;
-        public static void Load()
+        public static void Apply()
         {
             On.RoundManager.SetBigDoorCodes += RoundManager_SetBigDoorCodes;
         }

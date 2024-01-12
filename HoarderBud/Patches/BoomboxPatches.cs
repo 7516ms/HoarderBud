@@ -20,7 +20,7 @@ namespace HoarderBud.Patches
         public static float amplitude = 0.7f;
         public static float danceSpeed = 4f;
 
-        public static void Load()
+        public static void Apply()
         {
             On.HoarderBugAI.Update += UpdateDance;
             On.RoundManager.Update += RoundManager_Update;

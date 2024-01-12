@@ -6,7 +6,7 @@ namespace HoarderBud.Patches
     internal class RemoveInsideMobsPatches
     {
         public static bool enabled = true;
-        public static void Load()
+        public static void Apply()
         {
             On.RoundManager.AssignRandomEnemyToVent += RoundManager_AssignRandomEnemyToVent;
             On.RoundManager.AdvanceHourAndSpawnNewBatchOfEnemies += RoundManager_AdvanceHourAndSpawnNewBatchOfEnemies;

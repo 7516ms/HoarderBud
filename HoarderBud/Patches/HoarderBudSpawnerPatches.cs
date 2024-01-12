@@ -9,6 +9,7 @@ using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
+using static Unity.Audio.Handle;
 
 namespace HoarderBud.Patches
 {
@@ -16,12 +17,13 @@ namespace HoarderBud.Patches
     internal class HoarderBudSpawnerPatches
     {
         public static bool enabled = true;
+        public static int SpawnerItemPrice = 30;
         private static GameObject HoarderBugModel = null;
         private static Item HoarderBugSpawnerItem;
 
         private static ManualLogSource mls => HoarderBudPlugin.mls;
 
-        public static void Load()
+        public static void Apply()
         {
             foreach (string resource in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
@@ -42,6 +44,8 @@ namespace HoarderBud.Patches
             }
             LethalLib.Modules.Utilities.FixMixerGroups(HoarderBugSpawnerItem.spawnPrefab);
 
+            HoarderBugSpawnerItem.isScrap = false;
+            HoarderBugSpawnerItem.creditsWorth = 0;
 
             On.StartOfRound.Awake += CopyOriginalAssets;
             On.GameNetworkManager.Start += GameNetworkManager_Start;
@@ -57,11 +61,12 @@ namespace HoarderBud.Patches
         {
             if (enabled) 
             {
-                if (LethalLib.Modules.Items.shopItems.Any(item => item.item == HoarderBugSpawnerItem)) { 
+                if (LethalLib.Modules.Items.shopItems.Any(item => item.item == HoarderBugSpawnerItem)) {
+                    LethalLib.Modules.Items.UpdateShopItemPrice(HoarderBugSpawnerItem, SpawnerItemPrice);
                     return; //check if already registered
                 }
 
-                LethalLib.Modules.Items.RegisterShopItem(HoarderBugSpawnerItem, 20);
+                LethalLib.Modules.Items.RegisterShopItem(HoarderBugSpawnerItem, SpawnerItemPrice);
             }
             else
             {
@@ -101,7 +106,13 @@ namespace HoarderBud.Patches
                     throwable.grenadeVerticalFallCurve = stun.grenadeVerticalFallCurve;
                     throwable.grenadeVerticalFallCurveNoBounce = stun.grenadeVerticalFallCurveNoBounce;
                     foundStun = true;
+
                 }
+                if (item.spawnPrefab == null) continue;
+                ScanNodeProperties node = item.spawnPrefab.transform.Find("ScanNode")?.gameObject.GetComponent<ScanNodeProperties>();
+                if (node == null) continue;
+                mls.LogInfo(item.itemName + ": " + node.nodeType);
+                //if (foundStun && foundPickles) break;
             }
 
             foreach (SelectableLevel level in startOfRound.levels)

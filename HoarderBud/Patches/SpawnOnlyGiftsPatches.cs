@@ -11,7 +11,7 @@ namespace HoarderBud.Patches
     {
         public static bool enabled = true;
 
-        public static void Load()
+        public static void Apply()
         {
             On.RoundManager.SpawnScrapInLevel += UpdatePositionTypes;
             IL.RoundManager.SpawnScrapInLevel += ReplaceOriginalRandom;

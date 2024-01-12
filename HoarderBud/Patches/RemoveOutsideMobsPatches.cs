@@ -6,7 +6,7 @@ namespace HoarderBud.Patches
     internal class RemoveOutsideMobsPatches
     {
         public static bool enabled = true;
-        public static void Load()
+        public static void Apply()
         {
             On.RoundManager.LoadNewLevelWait += RoundManager_LoadNewLevelWait;
             On.RoundManager.AdvanceHourAndSpawnNewBatchOfEnemies += RoundManager_AdvanceHourAndSpawnNewBatchOfEnemies;

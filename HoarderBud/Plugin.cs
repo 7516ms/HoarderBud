@@ -29,18 +29,23 @@ namespace HoarderBud
             // Plugin startup logic
             mls = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
 
-            HoarderBugPatches.Load();
-            On.GameNetcodeStuff.PlayerControllerB.PerformEmote += PlayerControllerB_PerformEmote;
+            HoarderBugPatches.Apply();
+
+            On.GameNetcodeStuff.PlayerControllerB.PerformEmote += PlayerControllerB_PerformEmote; //debug coords
+            
+            //config syncing
             On.GameNetworkManager.StartDisconnect += LoadConfigOnDisconnect;
             On.GameNetcodeStuff.PlayerControllerB.ConnectClientToPlayerObject += AttachNetworkManager;
 
-            BoomboxPatches.Load();
-            RemoveOutsideMobsPatches.Load();
-            RemoveInsideMobsPatches.Load();
-            OpenAllDoorsPatches.Load();
-            SpawnOnlyGiftsPatches.Load();
+            BoomboxPatches.Apply();
 
-            HoarderBudSpawnerPatches.Load();
+            RemoveOutsideMobsPatches.Apply();
+            RemoveInsideMobsPatches.Apply();
+
+            OpenAllDoorsPatches.Apply();
+            SpawnOnlyGiftsPatches.Apply();
+
+            HoarderBudSpawnerPatches.Apply();
 
             ApplyLocalSettings();
 
@@ -133,11 +138,18 @@ namespace HoarderBud
             public bool ShouldBugsDance = true;
             public float DanceAmplitude = 0.7f;
             public float DanceSpeed = 4f;
+
+            public bool MakeBugsFriendly = true;
+            public bool MakeBugsGatherAtMainEntrance = true;
+
             public bool DisableOutsideEnemies = false;
             public bool DisableInsideEnemies = true;
+
             public bool OpenAllDoors = true;
             public bool SpawnOnlyGifts = true;
+
             public bool AddSpawnerItem = true;
+            public int SpawnerItemPrice = 30;
         }
 
         private static byte[] SerializeToBytes()
@@ -147,11 +159,18 @@ namespace HoarderBud
                 ShouldBugsDance = BoomboxPatches.enabled,
                 DanceAmplitude = BoomboxPatches.amplitude,
                 DanceSpeed = BoomboxPatches.danceSpeed,
+
+                MakeBugsFriendly = HoarderBugPatches.MakeBugsFriendly,
+                MakeBugsGatherAtMainEntrance = HoarderBugPatches.MakeBugsGatherAtMainEntrance,
+
                 DisableOutsideEnemies = RemoveOutsideMobsPatches.enabled,
                 DisableInsideEnemies = RemoveInsideMobsPatches.enabled,
+
                 OpenAllDoors = OpenAllDoorsPatches.enabled,
                 SpawnOnlyGifts = SpawnOnlyGiftsPatches.enabled,
-                AddSpawnerItem = HoarderBudSpawnerPatches.enabled
+
+                AddSpawnerItem = HoarderBudSpawnerPatches.enabled,
+                SpawnerItemPrice = HoarderBudSpawnerPatches.SpawnerItemPrice
             };
 
             BinaryFormatter bf = new();
@@ -172,23 +191,21 @@ namespace HoarderBud
             BoomboxPatches.enabled = cfg.ShouldBugsDance;
             BoomboxPatches.amplitude = cfg.DanceAmplitude;
             BoomboxPatches.danceSpeed = cfg.DanceSpeed;
+
+            HoarderBugPatches.MakeBugsFriendly = cfg.MakeBugsFriendly;
+            HoarderBugPatches.MakeBugsGatherAtMainEntrance = cfg.MakeBugsGatherAtMainEntrance;
+
             RemoveOutsideMobsPatches.enabled = cfg.DisableOutsideEnemies;
             RemoveInsideMobsPatches.enabled = cfg.DisableInsideEnemies;
             OpenAllDoorsPatches.enabled = cfg.OpenAllDoors;
             SpawnOnlyGiftsPatches.enabled = cfg.SpawnOnlyGifts;
             HoarderBudSpawnerPatches.enabled = cfg.AddSpawnerItem;
+            HoarderBudSpawnerPatches.SpawnerItemPrice = cfg.SpawnerItemPrice;
             HoarderBudSpawnerPatches.UpdateItem();
 
             IsSynced = true;
             mls.LogInfo("Config: Loaded remote config");
-            mls.LogInfo("Config: ShouldBugsDance - " + BoomboxPatches.enabled);
-            mls.LogInfo("Config: DanceAmplitude - " + BoomboxPatches.amplitude);
-            mls.LogInfo("Config: DanceSpeed - " + BoomboxPatches.danceSpeed);
-            mls.LogInfo("Config: DisableOutsideEnemies - " + RemoveOutsideMobsPatches.enabled);
-            mls.LogInfo("Config: DisableInsideEnemies - " + RemoveInsideMobsPatches.enabled);
-            mls.LogInfo("Config: OpenAllDoors - " + OpenAllDoorsPatches.enabled);
-            mls.LogInfo("Config: SpawnOnlyGifts - " + SpawnOnlyGiftsPatches.enabled);
-            mls.LogInfo("Config: AddSpawnerItem - " + HoarderBudSpawnerPatches.enabled);
+            DumpConfig();
         }
 
         private void ApplyLocalSettings()
@@ -196,24 +213,36 @@ namespace HoarderBud
             BoomboxPatches.enabled = Config.Bind<bool>("Boombox", "ShouldBugsDance", true, "Should hoarder bugs dance when music is playing?").Value;
             BoomboxPatches.amplitude = Config.Bind<float>("Boombox", "DanceAmplitude", 0.7f, "Dance amplitude").Value;
             BoomboxPatches.danceSpeed = Config.Bind<float>("Boombox", "DanceSpeed", 4f, "Dance speed").Value;
+
+            HoarderBugPatches.MakeBugsFriendly = Config.Bind<bool>("General", "MakeBugsFriendly", true, "Makes hoarder bugs not attack you").Value;
+            HoarderBugPatches.MakeBugsGatherAtMainEntrance = Config.Bind<bool>("General", "MakeBugsGatherAtMainEntrance", true, "Makes hoarder bugs nest near the main entrance").Value;
+            
             RemoveOutsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableOutsideEnemies", false, "Disables all outside enemies").Value;
-            RemoveInsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableInsideEnemies", true, "Disables all inside enemies except for Hoarder Buddy").Value;
+            RemoveInsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableInsideEnemies", true, "Disables all inside enemies except for Hoarder Buddy, also increases his spawnrate").Value;
             OpenAllDoorsPatches.enabled = Config.Bind<bool>("General", "OpenAllDoors", true, "Starts game with all the inside doors open").Value;
             SpawnOnlyGiftsPatches.enabled = Config.Bind<bool>("General", "SpawnOnlyGifts", true, "All scrap spawned inside is gift boxes").Value;
-            HoarderBudSpawnerPatches.enabled = Config.Bind<bool>("General", "AddSpawnerItem", true, "Adds a throwable HoarderBug item").Value;
+            HoarderBudSpawnerPatches.enabled = Config.Bind<bool>("General", "AddSpawnerItem", true, "Adds a throwable HoarderBug egg").Value;
+            HoarderBudSpawnerPatches.SpawnerItemPrice = Config.Bind<int>("General", "SpawnerItemPrice", 30, "Throwable HoarderBug egg price").Value;
             HoarderBudSpawnerPatches.UpdateItem();
 
+
             mls.LogInfo("Config: Loaded local config");
+            DumpConfig();
+        }
+        private static void DumpConfig()
+        {
             mls.LogInfo("Config: ShouldBugsDance - " + BoomboxPatches.enabled);
             mls.LogInfo("Config: DanceAmplitude - " + BoomboxPatches.amplitude);
             mls.LogInfo("Config: DanceSpeed - " + BoomboxPatches.danceSpeed);
+            mls.LogInfo("Config: MakeBugsFriendly - " + HoarderBugPatches.MakeBugsFriendly);
+            mls.LogInfo("Config: MakeBugsGatherAtMainEntrance - " + HoarderBugPatches.MakeBugsGatherAtMainEntrance);
             mls.LogInfo("Config: DisableOutsideEnemies - " + RemoveOutsideMobsPatches.enabled);
             mls.LogInfo("Config: DisableInsideEnemies - " + RemoveInsideMobsPatches.enabled);
             mls.LogInfo("Config: OpenAllDoors - " + OpenAllDoorsPatches.enabled);
             mls.LogInfo("Config: SpawnOnlyGifts - " + SpawnOnlyGiftsPatches.enabled);
             mls.LogInfo("Config: AddSpawnerItem - " + HoarderBudSpawnerPatches.enabled);
+            mls.LogInfo("Config: SpawnerItemPrice - " + HoarderBudSpawnerPatches.SpawnerItemPrice);
         }
-
 
         private static void PlayerControllerB_PerformEmote(On.GameNetcodeStuff.PlayerControllerB.orig_PerformEmote orig, GameNetcodeStuff.PlayerControllerB self, UnityEngine.InputSystem.InputAction.CallbackContext context, int emoteID)
         {
