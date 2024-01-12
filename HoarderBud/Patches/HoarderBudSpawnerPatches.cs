@@ -108,11 +108,8 @@ namespace HoarderBud.Patches
                     foundStun = true;
 
                 }
-                if (item.spawnPrefab == null) continue;
-                ScanNodeProperties node = item.spawnPrefab.transform.Find("ScanNode")?.gameObject.GetComponent<ScanNodeProperties>();
-                if (node == null) continue;
-                mls.LogInfo(item.itemName + ": " + node.nodeType);
-                //if (foundStun && foundPickles) break;
+
+                if (foundStun && foundPickles) break;
             }
 
             foreach (SelectableLevel level in startOfRound.levels)
