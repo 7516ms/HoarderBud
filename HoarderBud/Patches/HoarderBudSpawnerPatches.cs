@@ -99,7 +99,7 @@ namespace HoarderBud.Patches
                     ThrowableItemComponent throwable = HoarderBugSpawnerItem.spawnPrefab.GetComponent<ThrowableItemComponent>();
 
                     StunGrenadeItem stun = item.spawnPrefab.GetComponent<StunGrenadeItem>();
-                    mls.LogInfo("Throwable is null? " + (throwable == null) + "Stun is null? " + (stun == null));
+                    mls.LogDebug("Throwable is null? " + (throwable == null) + "Stun is null? " + (stun == null));
                     throwable.grenadeHit = stun.grenadeHit;
                     throwable.grenadeThrowRay = stun.grenadeThrowRay;
                     throwable.grenadeFallCurve = stun.grenadeFallCurve;

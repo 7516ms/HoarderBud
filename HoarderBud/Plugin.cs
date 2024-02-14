@@ -27,7 +27,7 @@ namespace HoarderBud
         private void Awake()
         {
             // Plugin startup logic
-            mls = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
+            mls = base.Logger;
 
             HoarderBugPatches.Apply();
 
@@ -43,7 +43,6 @@ namespace HoarderBud
             RemoveInsideMobsPatches.Apply();
 
             OpenAllDoorsPatches.Apply();
-            SpawnOnlyGiftsPatches.Apply();
 
             HoarderBudSpawnerPatches.Apply();
 
@@ -59,6 +58,8 @@ namespace HoarderBud
 
             ApplyLocalSettings();
             IsSynced = false;
+            MessageManager.UnregisterNamedMessageHandler(PluginInfo.PLUGIN_GUID + "_OnRequestConfigSync");
+            MessageManager.UnregisterNamedMessageHandler(PluginInfo.PLUGIN_GUID + "_OnReceiveConfigSync");
         }
         private void AttachNetworkManager(On.GameNetcodeStuff.PlayerControllerB.orig_ConnectClientToPlayerObject orig, GameNetcodeStuff.PlayerControllerB self)
         {
@@ -146,7 +147,6 @@ namespace HoarderBud
             public bool DisableInsideEnemies = true;
 
             public bool OpenAllDoors = true;
-            public bool SpawnOnlyGifts = true;
 
             public bool AddSpawnerItem = true;
             public int SpawnerItemPrice = 30;
@@ -167,7 +167,6 @@ namespace HoarderBud
                 DisableInsideEnemies = RemoveInsideMobsPatches.enabled,
 
                 OpenAllDoors = OpenAllDoorsPatches.enabled,
-                SpawnOnlyGifts = SpawnOnlyGiftsPatches.enabled,
 
                 AddSpawnerItem = HoarderBudSpawnerPatches.enabled,
                 SpawnerItemPrice = HoarderBudSpawnerPatches.SpawnerItemPrice
@@ -198,7 +197,6 @@ namespace HoarderBud
             RemoveOutsideMobsPatches.enabled = cfg.DisableOutsideEnemies;
             RemoveInsideMobsPatches.enabled = cfg.DisableInsideEnemies;
             OpenAllDoorsPatches.enabled = cfg.OpenAllDoors;
-            SpawnOnlyGiftsPatches.enabled = cfg.SpawnOnlyGifts;
             HoarderBudSpawnerPatches.enabled = cfg.AddSpawnerItem;
             HoarderBudSpawnerPatches.SpawnerItemPrice = cfg.SpawnerItemPrice;
             HoarderBudSpawnerPatches.UpdateItem();
@@ -220,7 +218,6 @@ namespace HoarderBud
             RemoveOutsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableOutsideEnemies", false, "Disables all outside enemies").Value;
             RemoveInsideMobsPatches.enabled = Config.Bind<bool>("General", "DisableInsideEnemies", true, "Disables all inside enemies except for Hoarder Buddy, also increases his spawnrate").Value;
             OpenAllDoorsPatches.enabled = Config.Bind<bool>("General", "OpenAllDoors", true, "Starts game with all the inside doors open").Value;
-            SpawnOnlyGiftsPatches.enabled = Config.Bind<bool>("General", "SpawnOnlyGifts", true, "All scrap spawned inside is gift boxes").Value;
             HoarderBudSpawnerPatches.enabled = Config.Bind<bool>("General", "AddSpawnerItem", true, "Adds a throwable HoarderBug egg").Value;
             HoarderBudSpawnerPatches.SpawnerItemPrice = Config.Bind<int>("General", "SpawnerItemPrice", 30, "Throwable HoarderBug egg price").Value;
             HoarderBudSpawnerPatches.UpdateItem();
@@ -239,7 +236,6 @@ namespace HoarderBud
             mls.LogInfo("Config: DisableOutsideEnemies - " + RemoveOutsideMobsPatches.enabled);
             mls.LogInfo("Config: DisableInsideEnemies - " + RemoveInsideMobsPatches.enabled);
             mls.LogInfo("Config: OpenAllDoors - " + OpenAllDoorsPatches.enabled);
-            mls.LogInfo("Config: SpawnOnlyGifts - " + SpawnOnlyGiftsPatches.enabled);
             mls.LogInfo("Config: AddSpawnerItem - " + HoarderBudSpawnerPatches.enabled);
             mls.LogInfo("Config: SpawnerItemPrice - " + HoarderBudSpawnerPatches.SpawnerItemPrice);
         }
