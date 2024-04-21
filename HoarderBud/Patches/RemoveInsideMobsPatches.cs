@@ -51,6 +51,8 @@ namespace HoarderBud.Patches
 
         private static void RoundManager_AdvanceHourAndSpawnNewBatchOfEnemies(On.RoundManager.orig_AdvanceHourAndSpawnNewBatchOfEnemies orig, RoundManager self)
         {
+            orig(self);
+
             if (enabled)
             {
                 RoundManager.Instance.currentLevel.maxEnemyPowerCount = int.MaxValue;
@@ -59,7 +61,6 @@ namespace HoarderBud.Patches
                     RoundManager.Instance.minEnemiesToSpawn = 5;
                 }
             }
-            orig(self);
         }
     }
 }
