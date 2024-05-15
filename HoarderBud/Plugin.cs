@@ -144,9 +144,9 @@ namespace HoarderBud
             public bool MakeBugsGatherAtMainEntrance = true;
 
             public bool DisableOutsideEnemies = false;
-            public bool DisableInsideEnemies = true;
+            public bool DisableInsideEnemies = false;
 
-            public bool OpenAllDoors = true;
+            public bool OpenAllDoors = false;
 
             public bool AddSpawnerItem = true;
             public int SpawnerItemPrice = 30;
